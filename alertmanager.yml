@@ -1,0 +1,30 @@
+global:
+  resolve_timeout: 30s
+
+route:
+  group_by: ['severity']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 10s
+  # Add a default receiver for unmatched alerts
+  receiver: 'snmp_notifier'
+  routes:
+   # - match:
+   #     alertname: "ExampleAlertHELIX"  # Route for critical alerts to SNMP Notifier
+   #   receiver: 'webhook'
+
+    - match:
+        alertname: "ExampleAlertSNMP"  # Route for warning alerts to REST API
+      receiver: 'snmp_notifier'
+
+receivers:
+  - name: 'snmp_notifier'
+    webhook_configs:
+      - url: "http://localhost:9464/alerts"  # Ensure this URL is correct and accessible
+        send_resolved: true
+
+  #- name: 'webhook'
+   # webhook_configs:
+    #  - url: "http://localhost:5001/webhook"
+     #   send_resolved: true
+

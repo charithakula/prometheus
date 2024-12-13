@@ -1,0 +1,45 @@
+groups:
+  - name: service
+    rules:
+      - alert: ExampleAlertSNMP
+        expr: vector(1)  # This alert will always fire
+        for: 5s
+        labels:
+          severity: "critical"  # Matches with Alertmanager routing for critical alerts
+          type: "service"
+          oid: "1.3.6.1.4.1.123.0.10.1.1.1.5.1"
+          environment: "production"
+        annotations:
+          description: "Service is down"
+          summary: "A service is down."
+  - name: example
+    rules:
+      - alert: ExampleAlertHELIX
+        expr: vector(1)
+        for: 55s
+        labels:
+          severity: warning
+          impact: '1-Extensive/Widespread'
+          urgency: '1-Critical'
+        annotations:
+          summary: "Instance down"
+          description: "The instance {{ $labels.instance }} is down."
+
+      # Warning Disk Space Alert
+      - alert: HighDiskSpace
+        expr: vector(1)  # This alert will always fire
+        for: 10s
+        labels:
+          severity: "warning"  # Matches with Alertmanager routing for warning alerts
+        annotations:
+          summary: "Warning: Low Disk Space"
+          description: "Disk space on {{ $labels.instance }} is below 10%."
+
+      - alert: HighCPUUsage
+        expr:   avg by (instance)(windows_cpu_time_total{mode="user"} > 0.85)
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High CPU usage on instance {{ $labels.instance }}"
+          description: "CPU usage is over 85% for the last 5 minutes on instance {{ $labels.instance }}."
