@@ -2,20 +2,26 @@ global:
   resolve_timeout: 30s
 
 route:
-  group_by: ['alertname','severity']
+  group_by: ['alertname', 'severity']
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 10s
   # Add a default receiver for unmatched alerts
   receiver: 'snmp_notifier'
   routes:
-    - match:
-        alertname: "ExampleAlertHELIX"  # Route for critical alerts to ExampleAlertHELIX
-        severity: "critical"  # Route for critical alerts to ExampleAlertHELIX
+    - matchers:
+        - alertname=~"ExampleAlertHELIX|HighCPUUsage"
+        - severity="critical"
       receiver: 'webhook'
 
     - match:
-        alertname: "ExampleAlertSNMP"  # Route for warning alerts to REST API
+        alertname: "ExampleAlertSNMP"
+        severity: "critical"
+      receiver: 'snmp_notifier'
+
+    - match:
+        alertname: "HighDiskSpace"
+        severity: "warning"
       receiver: 'snmp_notifier'
 
 receivers:
@@ -26,6 +32,5 @@ receivers:
 
   - name: 'webhook'
     webhook_configs:
-     - url: "http://localhost:5000/submit"
-       send_resolved: true
-
+      - url: "http://localhost:5000/submit"
+        send_resolved: true
