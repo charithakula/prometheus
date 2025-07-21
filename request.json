@@ -1,0 +1,41 @@
+{
+  "receiver": "webhook",
+  "status": "firing",
+  "alerts": [
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "ExampleAlertHELIX",
+        "impact": "1-Extensive/Widespread",
+        "severity": "warning",
+        "urgency": "1-Critical"
+      },
+      "annotations": {
+        "description": "The instance  is down.",
+        "summary": "Instance down"
+      },
+      "startsAt": "2025-07-21T21:03:11.775Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://CHARITH:9090/graph?g0.expr=vector%281%29&g0.tab=1",
+      "fingerprint": "c8150884f673c00d"
+    }
+  ],
+  "groupLabels": {
+    "alertname": "ExampleAlertHELIX",
+    "severity": "warning"
+  },
+  "commonLabels": {
+    "alertname": "ExampleAlertHELIX",
+    "impact": "1-Extensive/Widespread",
+    "severity": "warning",
+    "urgency": "1-Critical"
+  },
+  "commonAnnotations": {
+    "description": "The instance  is down.",
+    "summary": "Instance down"
+  },
+  "externalURL": "http://CHARITH:9093",
+  "version": "4",
+  "groupKey": "{}:{alertname=\"ExampleAlertHELIX\", severity=\"warning\"}",
+  "truncatedAlerts": 0
+}
