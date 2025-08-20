@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #e8e9ea;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            letter-spacing: 1px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .dropdown {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .dropdown label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .dropdown select {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 120px;
+        }
+        
+        .top-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .metric-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .metric-value.success {
+            color: #27ae60;
+        }
+        
+        .sprint-velocity-container {
+            height: 80px;
+            margin-top: 10px;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .panel h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .panel-subtitle {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .chart-container {
+            height: 200px;
+            width: 100%;
+        }
+        
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        .integration-health-panel {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .health-chart-container {
+            height: 180px;
+            margin-bottom: 15px;
+        }
+        
+        .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .support-metrics-panel {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 15px;
+        }
+        
+        .support-chart-container {
+            height: 120px;
+        }
+        
+        .support-bottom-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .support-metric-item {
+            text-align: center;
+        }
+        
+        .support-metric-item h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .support-metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .ticket-volume-right {
+            display: grid;
+            grid-template-rows: auto auto;
+            gap: 15px;
+        }
+        
+        .ticket-metrics-container {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        
+        .ticket-metrics-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .ticket-category {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .category-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            margin-left: 10px;
+        }
+        
+        .bar-fill {
+            height: 20px;
+            background: #34495e;
+            border-radius: 2px;
+        }
+        
+        .category-count {
+            font-weight: 600;
+            min-width: 20px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>INTEGRATED DASHBOARD</h1>
+            <div class="header-controls">
+                <div class="dropdown">
+                    <label>Date</label>
+                    <select>
+                        <option>Last 30 days</option>
+                        <option>Last 7 days</option>
+                        <option>Last 90 days</option>
+                    </select>
+                </div>
+                <div class="dropdown">
+                    <label>Tool Name</label>
+                    <select>
+                        <option>All Tools</option>
+                        <option>Tool 1</option>
+                        <option>Tool 2</option>
+                    </select>
+                </div>
+                <div class="dropdown">
+                    <label>Environment</label>
+                    <select>
+                        <option>Production</option>
+                        <option>Staging</option>
+                        <option>Development</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="top-metrics">
+            <div class="metric-card">
+                <h3>Total Integrations</h3>
+                <div class="metric-value">250</div>
+            </div>
+            <div class="metric-card">
+                <h3>Success Rate</h3>
+                <div class="metric-value success">96.4%</div>
+            </div>
+            <div class="metric-card">
+                <h3>Open Support Tickets</h3>
+                <div class="metric-value">18</div>
+            </div>
+            <div class="metric-card">
+                <h3>Sprint Velocity</h3>
+                <div class="sprint-velocity-container">
+                    <canvas id="sprintVelocityChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-grid">
+            <div class="panel">
+                <h3>Tool 1 Panel</h3>
+                <div class="panel-subtitle">Success/Failure Trends</div>
+                <div class="chart-container">
+                    <canvas id="tool1Chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h3>Tool 2 Panel</h3>
+                <div class="panel-subtitle">Deployment History</div>
+                <div class="chart-container">
+                    <canvas id="tool2Chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h3>Support Tickets</h3>
+                <div class="panel-subtitle">Ticket Volumity</div>
+                <div class="chart-container">
+                    <canvas id="ticketVolumeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-grid">
+            <div class="panel integration-health-panel">
+                <h3>Integration Health</h3>
+                <div class="health-chart-container">
+                    <canvas id="integrationHealthChart"></canvas>
+                </div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background-color: #34495e;"></div>
+                        Real-time Status of Integrations
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background-color: #e74c3c;"></div>
+                        Failures or Delays
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background-color: #95a5a6;"></div>
+                        Retry Attempts and Success Rate
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel support-metrics-panel">
+                <div>
+                    <h3>Support Metrics</h3>
+                    <div class="panel-subtitle">Ticket Volume by Category</div>
+                </div>
+                
+                <div class="ticket-volume-right">
+                    <div class="support-chart-container">
+                        <canvas id="supportMetricsChart"></canvas>
+                    </div>
+                    
+                    <div class="ticket-metrics-container">
+                        <div class="ticket-metrics-title">Ticket Volume by Category</div>
+                        <div class="ticket-category">
+                            <span>Low</span>
+                            <div class="category-bar">
+                                <div class="bar-fill" style="width: 100px;"></div>
+                                <span class="category-count">8</span>
+                            </div>
+                        </div>
+                        <div class="ticket-category">
+                            <span>Med</span>
+                            <div class="category-bar">
+                                <div class="bar-fill" style="width: 60px;"></div>
+                                <span class="category-count">16</span>
+                            </div>
+                        </div>
+                        <div class="ticket-category">
+                            <span>High</span>
+                            <div class="category-bar">
+                                <div class="bar-fill" style="width: 40px;"></div>
+                                <span class="category-count">10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="support-bottom-metrics">
+                    <div class="support-metric-item">
+                        <h4>Mean Time to Resolution</h4>
+                        <div class="support-metric-value">12 hours</div>
+                    </div>
+                    <div class="support-metric-item">
+                        <h4>SLA Compliance Rate</h4>
+                        <div class="support-metric-value">92%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sprint Velocity Chart (small line chart in top metric)
+        const sprintCtx = document.getElementById('sprintVelocityChart').getContext('2d');
+        new Chart(sprintCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+                datasets: [{
+                    data: [25, 30, 28, 22, 35, 38, 42, 45],
+                    borderColor: '#f39c12',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#f39c12',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1,
+                    pointRadius: 3,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        display: false,
+                        beginAtZero: true
+                    },
+                    x: {
+                        display: false
+                    }
+                },
+                elements: {
+                    point: {
+                        hoverRadius: 4
+                    }
+                }
+            }
+        });
+
+        // Tool 1 Panel - Success/Failure Trends
+        const tool1Ctx = document.getElementById('tool1Chart').getContext('2d');
+        new Chart(tool1Ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [
+                    {
+                        label: 'Success',
+                        data: [3, 3, 4, 2, 3, 4, 5],
+                        backgroundColor: '#34495e'
+                    },
+                    {
+                        label: 'Failure',
+                        data: [2, 2, 3, 2, 2, 2, 3],
+                        backgroundColor: '#e74c3c'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { 
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        max: 8,
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+
+        // Tool 2 Panel - Deployment History
+        const tool2Ctx = document.getElementById('tool2Chart').getContext('2d');
+        new Chart(tool2Ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    data: [12, 22, 15, 18, 10, 25],
+                    backgroundColor: '#34495e'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { 
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        max: 25,
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+
+        // Support Tickets - Ticket Volume (horizontal bars)
+        const ticketCtx = document.getElementById('ticketVolumeChart').getContext('2d');
+        new Chart(ticketCtx, {
+            type: 'bar',
+            data: {
+                labels: ['80', '16', '10', '0'],
+                datasets: [{
+                    data: [80, 16, 10, 0],
+                    backgroundColor: ['#f1c40f', '#f1c40f', '#34495e', '#f1c40f'],
+                    barThickness: 20
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { 
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    },
+                    y: { 
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+
+        // Integration Health - Doughnut Chart
+        const healthCtx = document.getElementById('integrationHealthChart').getContext('2d');
+        new Chart(healthCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [80, 7, 13],
+                    backgroundColor: ['#34495e', '#e74c3c', '#95a5a6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: { display: false }
+                }
+            },
+            plugins: [{
+                beforeDraw: function(chart) {
+                    const width = chart.width,
+                          height = chart.height,
+                          ctx = chart.ctx;
+                    
+                    ctx.restore();
+                    const fontSize = (height / 180).toFixed(2);
+                    ctx.font = "bold " + fontSize + "em sans-serif";
+                    ctx.textBaseline = "middle";
+                    ctx.fillStyle = "#2c3e50";
+                    
+                    const text = "80%",
+                          textX = Math.round((width - ctx.measureText(text).width) / 2),
+                          textY = height / 2;
+                    
+                    ctx.fillText(text, textX, textY);
+                    ctx.save();
+                }
+            }]
+        });
+
+        // Support Metrics Chart
+        const supportCtx = document.getElementById('supportMetricsChart').getContext('2d');
+        new Chart(supportCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Low', 'Med', 'High'],
+                datasets: [{
+                    data: [8, 16, 10],
+                    backgroundColor: '#34495e',
+                    barThickness: 15
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { 
+                        beginAtZero: true,
+                        max: 20,
+                        grid: { display: false },
+                        ticks: { display: false }
+                    },
+                    y: { 
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
