@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICoeE Business Process Monitoring Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+            align-items: start;
+            width: 100%;
+        }
+        
+        .chart-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+            height: 400px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .chart-container h3 {
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            font-size: 16px;
+            text-align: center;
+            font-weight: bold;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: calc(100% - 60px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .business-process {
+            grid-column: 1 / -1;
+            height: 380px;
+            margin-top: 15px;
+            max-width: 100%;
+        }
+        
+        canvas {
+            border-radius: 8px;
+        }
+        
+        #endpointChart, #infrastructureChart, #businessProcessChart {
+            max-height: 100% !important;
+            width: 100% !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>ICoeE - Business Process Monitoring(Meter to cash, ESPI/DRPs, Onboarding, SalesOrders)</h1>
+        
+        <div class="dashboard-grid">
+            <div class="chart-container">
+                <h3>Endpoint Monitoring: Success vs Failure & Latency</h3>
+                <div class="chart-wrapper">
+                    <canvas id="endpointChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Infrastructure Monitoring: Resource Utilization</h3>
+                <div class="chart-wrapper">
+                    <canvas id="infrastructureChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container business-process">
+                <h3>ICoeE - Business Process Monitoring(Meter to cash, ESPI/DRPs, Onboarding, SalesOrders)</h3>
+                <div class="chart-wrapper">
+                    <canvas id="businessProcessChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Endpoint Monitoring Chart
+        const endpointCtx = document.getElementById('endpointChart').getContext('2d');
+        const endpointChart = new Chart(endpointCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Success', 'Failure', 'Latency (ms)'],
+                datasets: [{
+                    data: [800, 50, 200],
+                    backgroundColor: ['#27ae60', '#e74c3c', '#3498db'],
+                    borderColor: ['#229954', '#cb4335', '#2980b9'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count / Latency'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Infrastructure Monitoring Chart
+        const infrastructureCtx = document.getElementById('infrastructureChart').getContext('2d');
+        const infrastructureChart = new Chart(infrastructureCtx, {
+            type: 'bar',
+            data: {
+                labels: ['CPU Usage (%)', 'Memory Usage (%)', 'Storage Usage (%)'],
+                datasets: [{
+                    data: [60, 70, 80],
+                    backgroundColor: ['#f39c12', '#e67e22', '#d35400'],
+                    borderColor: ['#d68910', '#ca6f1e', '#ba4a00'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Usage (%)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Business Process KPIs Chart
+        const businessProcessCtx = document.getElementById('businessProcessChart').getContext('2d');
+        const businessProcessChart = new Chart(businessProcessCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Meter to Cash', 'ESPI/DRPs', 'Onboarding', 'SalesOrders'],
+                datasets: [{
+                    label: 'Performance',
+                    data: [90, 88, 85, 92],
+                    backgroundColor: [
+                        'rgba(52, 152, 219, 0.8)',
+                        'rgba(46, 204, 113, 0.8)', 
+                        'rgba(155, 89, 182, 0.8)',
+                        'rgba(241, 196, 15, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(52, 152, 219, 1)',
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(155, 89, 182, 1)',
+                        'rgba(241, 196, 15, 1)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 4,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + '% Performance';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Performance (%)',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'ICoeE Business Processes',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 10,
+                                weight: 'bold'
+                            },
+                            maxRotation: 0,
+                            minRotation: 0
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                },
+                layout: {
+                    padding: {
+                        top: 20,
+                        right: 20,
+                        bottom: 10,
+                        left: 20
+                    }
+                }
+            },
+            plugins: [{
+                afterDatasetsDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const meta = chart.getDatasetMeta(i);
+                        meta.data.forEach((bar, index) => {
+                            const data = dataset.data[index];
+                            ctx.fillStyle = '#2c3e50';
+                            ctx.font = 'bold 12px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+                            ctx.fillText(data + '%', bar.x, bar.y - 5);
+                        });
+                    });
+                }
+            }]
+        });
+
+        // Add real-time update simulation
+        function updateCharts() {
+            // Simulate small variations in data
+            const endpointData = endpointChart.data.datasets[0].data;
+            endpointData[0] = 800 + Math.floor(Math.random() * 20 - 10); // Success
+            endpointData[1] = 50 + Math.floor(Math.random() * 10 - 5);   // Failure
+            endpointData[2] = 200 + Math.floor(Math.random() * 40 - 20); // Latency
+            
+            const infraData = infrastructureChart.data.datasets[0].data;
+            infraData[0] = Math.max(50, Math.min(90, 60 + Math.floor(Math.random() * 10 - 5))); // CPU
+            infraData[1] = Math.max(50, Math.min(90, 70 + Math.floor(Math.random() * 10 - 5))); // Memory
+            infraData[2] = Math.max(60, Math.min(95, 80 + Math.floor(Math.random() * 10 - 5))); // Storage
+            
+            const businessData = businessProcessChart.data.datasets[0].data;
+            businessData[0] = Math.max(85, Math.min(95, 90 + Math.floor(Math.random() * 4 - 2))); // Meter to Cash
+            businessData[1] = Math.max(83, Math.min(93, 88 + Math.floor(Math.random() * 4 - 2))); // ESPI/DRPs
+            businessData[2] = Math.max(80, Math.min(92, 85 + Math.floor(Math.random() * 4 - 2))); // Onboarding
+            businessData[3] = Math.max(87, Math.min(97, 92 + Math.floor(Math.random() * 4 - 2))); // SalesOrders
+            
+            endpointChart.update('none');
+            infrastructureChart.update('none');
+            businessProcessChart.update('none');
+        }
+
+        // Update charts every 3 seconds to simulate real-time monitoring
+        setInterval(updateCharts, 3000);
+    </script>
+</body>
+</html>
