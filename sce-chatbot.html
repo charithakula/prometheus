@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Knowledge Assistant - Gen 3.0</title>
+    <style>
+        :root {
+            --sce-orange: #FF6B35;
+            --sce-dark-orange: #E85A2A;
+            --sce-navy: #003A70;
+            --sce-dark-navy: #002852;
+            --sce-light-blue: #0066CC;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --light-gray: #f8fafc;
+            --border-gray: #e2e8f0;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--sce-navy) 0%, var(--sce-dark-navy) 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .brand-info h1 {
+            font-size: 1.6rem;
+            color: var(--sce-navy);
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+        
+        .brand-info p {
+            font-size: 0.875rem;
+            color: var(--text-gray);
+        }
+        
+        .stats-container {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px 20px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            border: 2px solid var(--border-gray);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--sce-orange);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Main Chat Container */
+        .chat-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Chat Panel */
+        .chat-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            padding: 20px 25px;
+            border-bottom: 3px solid var(--sce-orange);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .chat-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .chat-header h2 {
+            font-size: 1.2rem;
+            color: var(--sce-navy);
+            font-weight: 700;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: var(--light-gray);
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .user-avatar {
+            background: var(--sce-navy);
+        }
+        
+        .bot-avatar {
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-bubble {
+            padding: 15px 18px;
+            border-radius: 12px;
+            line-height: 1.6;
+            max-width: 85%;
+        }
+        
+        .user-message .message-bubble {
+            background: var(--sce-navy);
+            color: white;
+            margin-left: auto;
+        }
+        
+        .bot-message .message-bubble {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--border-gray);
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin-top: 5px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 15px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--sce-orange);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .chat-input-area {
+            padding: 20px 25px;
+            border-top: 2px solid var(--border-gray);
+            background: white;
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid var(--border-gray);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            resize: none;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--sce-orange);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+        }
+        
+        .send-btn {
+            padding: 0 25px;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .sidebar-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--sce-orange);
+        }
+        
+        .sidebar-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1rem;
+            color: var(--sce-navy);
+            font-weight: 700;
+        }
+        
+        .ticket-item {
+            padding: 12px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--sce-orange);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .ticket-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .ticket-id {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .ticket-title {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .ticket-priority {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .priority-high {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        
+        .priority-critical {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .priority-medium {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .quick-action-btn {
+            padding: 10px;
+            background: var(--light-gray);
+            border: 2px solid var(--border-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            text-align: left;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--sce-orange);
+            background: white;
+            transform: translateX(5px);
+        }
+        
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-gray);
+        }
+        
+        .welcome-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-message h3 {
+            color: var(--sce-navy);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .welcome-message p {
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .chat-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="logo-section">
+                <div class="logo">🤖</div>
+                <div class="brand-info">
+                    <h1>AI Knowledge Assistant</h1>
+                    <p>Gen 3.0 Program - Intelligent IT Support</p>
+                </div>
+            </div>
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-value" id="ticketCount">3,247</div>
+                    <div class="stat-label">Tickets</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">94%</div>
+                    <div class="stat-label">Resolution Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Container -->
+        <div class="chat-container">
+            <!-- Chat Panel -->
+            <div class="chat-panel">
+                <div class="chat-header">
+                    <div class="chat-icon">💬</div>
+                    <h2>Support Chat</h2>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="welcome-message">
+                        <div class="welcome-icon">🤖</div>
+                        <h3>Welcome to AI Knowledge Assistant</h3>
+                        <p>Ask me about any technical issues. I'm trained on thousands of historical tickets to help you resolve problems faster.</p>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="messageInput" 
+                            class="chat-input" 
+                            placeholder="Ask about any technical issue..." 
+                            rows="2"
+                            onkeypress="handleKeyPress(event)"></textarea>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                            ➤
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Similar Tickets Panel -->
+                <div class="sidebar-panel">
+                    <div class="sidebar-header">
+                        <div class="sidebar-icon">📋</div>
+                        <h3>Similar Tickets</h3>
+                    </div>
+                    <div id="similarTickets">
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Similar tickets will appear here during conversation</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Panel -->
+                <div class="sidebar-panel">
+                    <div class="sidebar-header">
+                        <div class="sidebar-icon">⚡</div>
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="quickQuestion('How do I fix API timeout issues?')">
+                            🔌 API Timeout Issues
+                        </button>
+                        <button class="quick-action-btn" onclick="quickQuestion('Helix ticket creation failing')">
+                            🎫 Helix Integration
+                        </button>
+                        <button class="quick-action-btn" onclick="quickQuestion('Unit test failures in CI/CD')">
+                            🧪 CI/CD Test Failures
+                        </button>
+                        <button class="quick-action-btn" onclick="quickQuestion('MuleSoft deployment errors')">
+                            🚀 Deployment Issues
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5001/api';
+        
+        let chatHistory = [];
+        let isTyping = false;
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || isTyping) return;
+            
+            // Add user message to chat
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            showTyping();
+            isTyping = true;
+            
+            // Disable send button
+            document.getElementById('sendBtn').disabled = true;
+
+            try {
+                // Call backend API
+                const response = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        history: chatHistory
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                
+                // Remove typing indicator
+                hideTyping();
+                
+                // Add bot response
+                addMessage(data.message, 'bot');
+                
+                // Update similar tickets
+                if (data.similar_tickets && data.similar_tickets.length > 0) {
+                    displaySimilarTickets(data.similar_tickets);
+                }
+                
+                // Update chat history
+                chatHistory.push(
+                    { role: 'user', content: message },
+                    { role: 'assistant', content: data.message }
+                );
+
+            } catch (error) {
+                console.error('Error:', error);
+                hideTyping();
+                
+                // Show demo response
+                const demoResponse = generateDemoResponse(message);
+                addMessage(demoResponse.message, 'bot');
+                
+                if (demoResponse.tickets) {
+                    displaySimilarTickets(demoResponse.tickets);
+                }
+            } finally {
+                isTyping = false;
+                document.getElementById('sendBtn').disabled = false;
+            }
+        }
+
+        function addMessage(text, type) {
+            const container = document.getElementById('chatMessages');
+            
+            // Remove welcome message if exists
+            const welcomeMsg = container.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            
+            const avatar = type === 'user' ? '👤' : '🤖';
+            const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar ${type}-avatar">${avatar}</div>
+                <div class="message-content">
+                    <div class="message-bubble">${text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar bot-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) {
+                typing.remove();
+            }
+        }
+
+        function displaySimilarTickets(tickets) {
+            const container = document.getElementById('similarTickets');
+            container.innerHTML = '';
+            
+            tickets.forEach(ticket => {
+                const ticketDiv = document.createElement('div');
+                ticketDiv.className = 'ticket-item';
+                ticketDiv.innerHTML = `
+                    <div class="ticket-id">${ticket.id}</div>
+                    <div class="ticket-title">${ticket.title}</div>
+                    <span class="ticket-priority priority-${ticket.priority.toLowerCase()}">${ticket.priority}</span>
+                `;
+                container.appendChild(ticketDiv);
+            });
+        }
+
+        function quickQuestion(question) {
+            document.getElementById('messageInput').value = question;
+            sendMessage();
+        }
+
+        function generateDemoResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('timeout') || lowerMessage.includes('api')) {
+                return {
+                    message: "Based on historical tickets, API timeout issues are commonly resolved by:\n\n1. Increasing timeout configuration in mule-app.properties to 60 seconds\n2. Implementing retry logic with exponential backoff\n3. Checking network connectivity and firewall rules\n4. Verifying API endpoint health and response times\n\nSimilar issue was resolved in ticket INC001234 where we adjusted the timeout settings and added proper error handling.",
+                    tickets: [
+                        { id: 'INC001234', title: 'MuleSoft API connection timeout', priority: 'High' },
+                        { id: 'INC002156', title: 'API Gateway timeout errors', priority: 'Medium' }
+                    ]
+                };
+            } else if (lowerMessage.includes('helix') || lowerMessage.includes('ticket')) {
+                return {
+                    message: "For Helix ticket creation issues:\n\n1. Check if OAuth token has expired - implement token refresh mechanism\n2. Update API credentials in environment variables\n3. Verify API endpoint URLs are correct\n4. Ensure proper authentication headers are included\n\nThis was successfully resolved in INC001567 by implementing automatic token refresh.",
+                    tickets: [
+                        { id: 'INC001567', title: 'Helix ticket creation failing', priority: 'Critical' },
+                        { id: 'INC003421', title: 'Helix API 401 errors', priority: 'High' }
+                    ]
+                };
+            } else if (lowerMessage.includes('test') || lowerMessage.includes('ci/cd')) {
+                return {
+                    message: "Unit test failures in CI/CD pipelines often occur due to:\n\n1. Race conditions in asynchronous tests - add proper async/await handling\n2. Insufficient test timeouts - increase from 5s to 10s\n3. Environment variable mismatches\n4. Database state issues between test runs\n\nTicket INC002341 documented a successful fix for intermittent Jest test failures.",
+                    tickets: [
+                        { id: 'INC002341', title: 'Unit test failures in Jenkins', priority: 'Medium' },
+                        { id: 'INC004123', title: 'CI/CD pipeline instability', priority: 'High' }
+                    ]
+                };
+            } else {
+                return {
+                    message: "I'd be happy to help! Could you provide more details about the specific issue you're experiencing? Common areas I can assist with include:\n\n• API connectivity and timeout issues\n• Integration platform errors (MuleSoft, Boomi, SAP)\n• Helix ITSM ticket creation\n• CI/CD pipeline problems\n• Test automation failures\n\nWhat type of issue are you encountering?",
+                    tickets: []
+                };
+            }
+        }
+
+        // Check API connection on load
+        window.addEventListener('load', checkAPIConnection);
+
+        async function checkAPIConnection() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/ticket-stats`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('ticketCount').textContent = data.total_tickets.toLocaleString();
+                }
+            } catch (error) {
+                console.log('Using demo mode');
+            }
+        }
+    </script>
+</body>
+</html>

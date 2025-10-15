@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proactive Analytics & Helix Integration - Gen 3.0</title>
+    <style>
+        :root {
+            --sce-orange: #FF6B35;
+            --sce-dark-orange: #E85A2A;
+            --sce-navy: #003A70;
+            --sce-dark-navy: #002852;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --critical: #dc2626;
+            --light-gray: #f8fafc;
+            --border-gray: #e2e8f0;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--sce-navy) 0%, var(--sce-dark-navy) 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+        
+        .main-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .brand-info h1 {
+            font-size: 1.6rem;
+            color: var(--sce-navy);
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+        
+        .brand-info p {
+            font-size: 0.875rem;
+            color: var(--text-gray);
+        }
+        
+        .refresh-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--sce-orange), var(--sce-dark-orange));
+        }
+        
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .summary-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--sce-navy);
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        /* Main Content */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--sce-orange);
+        }
+        
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .panel-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .panel-title h2 {
+            font-size: 1.25rem;
+            color: var(--sce-navy);
+            font-weight: 700;
+        }
+        
+        /* Service Cards */
+        .services-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .service-card {
+            background: var(--light-gray);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 5px solid;
+            transition: all 0.3s;
+        }
+        
+        .service-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .service-card.healthy {
+            border-left-color: var(--success);
+        }
+        
+        .service-card.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .service-card.critical {
+            border-left-color: var(--critical);
+        }
+        
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .service-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-badge.healthy {
+            background: #dcfce7;
+            color: var(--success);
+        }
+        
+        .status-badge.warning {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+        
+        .status-badge.critical {
+            background: #fee2e2;
+            color: var(--critical);
+        }
+        
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .metric {
+            text-align: center;
+        }
+        
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-gray);
+            margin-bottom: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .metric-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        .risk-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid rgba(0,0,0,0.05);
+        }
+        
+        .risk-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--border-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .risk-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .risk-text {
+            font-size: 0.8rem;
+            font-weight: 700;
+            min-width: 80px;
+        }
+        
+        /* Alert Panel */
+        .alert-item {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid;
+        }
+        
+        .alert-item.critical {
+            border-left-color: var(--critical);
+            background: #fef2f2;
+        }
+        
+        .alert-item.warning {
+            border-left-color: var(--warning);
+            background: #fffbeb;
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .alert-time {
+            font-size: 0.7rem;
+            color: var(--text-gray);
+        }
+        
+        .alert-message {
+            font-size: 0.875rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .alert-action {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+        }
+        
+        .ticket-link {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: var(--sce-orange);
+            color: white;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .ticket-link:hover {
+            background: var(--sce-dark-orange);
+            transform: translateY(-1px);
+        }
+        
+        /* Prediction Panel */
+        .prediction-form {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-label {
+            font-size: 0.8rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .form-input {
+            padding: 10px;
+            border: 2px solid var(--border-gray);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--sce-orange);
+        }
+        
+        .predict-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        .prediction-result {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+        }
+        
+        .prediction-result.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .probability-display {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .probability-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--sce-orange), var(--sce-dark-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .probability-label {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            margin-top: 5px;
+        }
+        
+        .issues-detected {
+            background: var(--light-gray);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .issues-detected h4 {
+            color: var(--sce-navy);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .issue-item {
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            border-left: 3px solid var(--sce-orange);
+        }
+        
+        @media (max-width: 1400px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="logo-section">
+                <div class="logo">📊</div>
+                <div class="brand-info">
+                    <h1>Proactive Analytics & Helix Integration</h1>
+                    <p>Gen 3.0 Program - AI-Powered Monitoring & Prediction</p>
+                </div>
+            </div>
+            <button class="refresh-btn" onclick="refreshDashboard()">
+                🔄 Refresh Dashboard
+            </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-icon">🖥️</div>
+                <div class="summary-value" id="totalServices">4</div>
+                <div class="summary-label">Total Services</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">✅</div>
+                <div class="summary-value" id="healthyServices">2</div>
+                <div class="summary-label">Healthy</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">⚠️</div>
+                <div class="summary-value" id="warningServices">1</div>
+                <div class="summary-label">Warning</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">🚨</div>
+                <div class="summary-value" id="criticalServices">1</div>
+                <div class="summary-label">Critical</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-grid">
+            <!-- Services Monitoring Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">📡</div>
+                        <h2>Service Health Monitoring</h2>
+                    </div>
+                </div>
+                <div class="services-list" id="servicesList"></div>
+            </div>
+
+            <!-- Alerts Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">🔔</div>
+                        <h2>Recent Alerts</h2>
+                    </div>
+                </div>
+                <div id="alertsList"></div>
+            </div>
+        </div>
+
+        <!-- Prediction Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <div class="panel-icon">🔮</div>
+                    <h2>Failure Prediction Tool</h2>
+                </div>
+            </div>
+            
+            <div class="prediction-form">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="form-label">Service Name</label>
+                    <input type="text" id="serviceName" class="form-input" placeholder="e.g., API Gateway" value="API Gateway">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">CPU Usage (%)</label>
+                        <input type="number" id="cpuUsage" class="form-input" value="85" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Memory Usage (%)</label>
+                        <input type="number" id="memoryUsage" class="form-input" value="90" min="0" max="100">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Disk Usage (%)</label>
+                        <input type="number" id="diskUsage" class="form-input" value="70" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Error Rate (%)</label>
+                        <input type="number" id="errorRate" class="form-input" value="5.5" min="0" max="100" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="form-label">Response Time (ms)</label>
+                    <input type="number" id="responseTime" class="form-input" value="2500" min="0">
+                </div>
+                
+                <button class="predict-btn" onclick="predictFailure()">
+                    🔮 Predict Failure Risk
+                </button>
+            </div>
+            
+            <div class="prediction-result" id="predictionResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5002/api';
+        
+        let servicesData = [];
+
+        // Initialize dashboard on load
+        window.addEventListener('load', () => {
+            refreshDashboard();
+        });
+
+        async function refreshDashboard() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/metrics-dashboard`);
+                const data = await response.json();
+                
+                servicesData = data.services;
+                updateSummary(data);
+                displayServices(data.services);
+                generateAlerts(data.services);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                // Use demo data
+                const demoData = getDemoData();
+                servicesData = demoData.services;
+                updateSummary(demoData);
+                displayServices(demoData.services);
+                generateAlerts(demoData.services);
+            }
+        }
+
+        function updateSummary(data) {
+            document.getElementById('totalServices').textContent = data.total_services;
+            document.getElementById('healthyServices').textContent = data.healthy;
+            document.getElementById('warningServices').textContent = data.warning;
+            document.getElementById('criticalServices').textContent = data.critical;
+        }
+
+        function displayServices(services) {
+            const container = document.getElementById('servicesList');
+            container.innerHTML = '';
+            
+            services.forEach(service => {
+                const card = document.createElement('div');
+                card.className = `service-card ${service.status}`;
+                
+                const riskColor = getRiskColor(service.failure_risk);
+                
+                card.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-name">${service.name}</div>
+                        <span class="status-badge ${service.status}">${service.status}</span>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric">
+                            <div class="metric-label">CPU</div>
+                            <div class="metric-value">${service.cpu}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Memory</div>
+                            <div class="metric-value">${service.memory}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Errors</div>
+                            <div class="metric-value">${service.error_rate}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Response</div>
+                            <div class="metric-value">${service.response_time}ms</div>
+                        </div>
+                    </div>
+                    <div class="risk-indicator">
+                        <span class="risk-text" style="color: ${riskColor}">Failure Risk</span>
+                        <div class="risk-bar">
+                            <div class="risk-fill" style="width: ${service.failure_risk}%; background: ${riskColor}"></div>
+                        </div>
+                        <span class="risk-text" style="color: ${riskColor}">${service.failure_risk}%</span>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        function generateAlerts(services) {
+            const container = document.getElementById('alertsList');
+            container.innerHTML = '';
+            
+            services.forEach((service, index) => {
+                if (service.failure_risk > 50) {
+                    const alert = document.createElement('div');
+                    alert.className = `alert-item ${service.failure_risk > 75 ? 'critical' : 'warning'}`;
+                    
+                    const timestamp = new Date(Date.now() - index * 120000).toLocaleTimeString();
+                    const ticketId = `INC${Date.now().toString().slice(-6)}${index}`;
+                    
+                    alert.innerHTML = `
+                        <div class="alert-header">
+                            <span class="status-badge ${service.failure_risk > 75 ? 'critical' : 'warning'}">
+                                ${service.failure_risk > 75 ? 'CRITICAL' : 'WARNING'}
+                            </span>
+                            <span class="alert-time">${timestamp}</span>
+                        </div>
+                        <div class="alert-message">
+                            ${service.name} - High Failure Risk Detected
+                        </div>
+                        <div class="alert-action">
+                            ${service.failure_risk > 60 ? 'Helix ticket auto-created' : 'Monitoring in progress'}
+                        </div>
+                        ${service.failure_risk > 60 ? `<a href="#" class="ticket-link" onclick="event.preventDefault()">View Ticket ${ticketId}</a>` : ''}
+                    `;
+                    
+                    container.appendChild(alert);
+                }
+            });
+            
+            if (container.children.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-gray); text-align: center; padding: 20px;">No alerts at this time</p>';
+            }
+        }
+
+        async function predictFailure() {
+            const serviceName = document.getElementById('serviceName').value;
+            const metrics = {
+                cpu_usage: parseFloat(document.getElementById('cpuUsage').value),
+                memory_usage: parseFloat(document.getElementById('memoryUsage').value),
+                disk_usage: parseFloat(document.getElementById('diskUsage').value),
+                error_rate: parseFloat(document.getElementById('errorRate').value),
+                response_time: parseFloat(document.getElementById('responseTime').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/predict-failure`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ service_name: serviceName, metrics })
+                });
+                
+                const data = await response.json();
+                displayPrediction(data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                // Use demo prediction
+                const demoResult = generateDemoPrediction(serviceName, metrics);
+                displayPrediction(demoResult);
+            }
+        }
+
+        function displayPrediction(data) {
+            const container = document.getElementById('predictionResult');
+            const riskColor = getRiskColor(data.failure_probability);
+            
+            let issuesHtml = '';
+            if (data.issues_detected && data.issues_detected.length > 0) {
+                issuesHtml = `
+                    <div class="issues-detected">
+                        <h4>Issues Detected</h4>
+                        ${data.issues_detected.map(issue => `
+                            <div class="issue-item">${issue}</div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            let ticketHtml = '';
+            if (data.ticket_created) {
+                ticketHtml = `
+                    <div style="margin-top: 15px; padding: 15px; background: #fef2f2; border-radius: 8px; border-left: 4px solid var(--sce-orange);">
+                        <strong>✅ Helix Ticket Auto-Created:</strong> ${data.ticket_created.ticket_id}
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = `
+                <div class="probability-display">
+                    <div class="probability-value" style="color: ${riskColor}">${data.failure_probability}%</div>
+                    <div class="probability-label">Failure Probability</div>
+                    <div style="margin-top: 10px;">
+                        <span class="status-badge ${data.severity.toLowerCase()}">${data.severity}</span>
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 15px; background: var(--light-gray); border-radius: 8px;">
+                    <strong>Recommended Action:</strong> ${data.recommended_action}
+                </div>
+                ${issuesHtml}
+                ${ticketHtml}
+            `;
+            
+            container.classList.add('show');
+        }
+
+        function getRiskColor(risk) {
+            if (risk > 75) return '#dc2626';
+            if (risk > 50) return '#f59e0b';
+            if (risk > 25) return '#eab308';
+            return '#10b981';
+        }
+
+        function generateDemoPrediction(serviceName, metrics) {
+            let score = 0;
+            let issues = [];
+            
+            if (metrics.cpu_usage > 80) {
+                score += 30;
+                issues.push('High CPU usage detected');
+            }
+            if (metrics.memory_usage > 85) {
+                score += 30;
+                issues.push('Memory usage critical');
+            }
+            if (metrics.error_rate > 5) {
+                score += 20;
+                issues.push('Elevated error rate');
+            }
+            if (metrics.response_time > 2000) {
+                score += 20;
+                issues.push('Slow response times');
+            }
+            
+            const probability = Math.min(score, 100);
+            let severity, action;
+            
+            if (probability > 75) {
+                severity = 'Critical';
+                action = 'Immediate';
+            } else if (probability > 50) {
+                severity = 'High';
+                action = 'Urgent';
+            } else if (probability > 25) {
+                severity = 'Medium';
+                action = 'Monitor';
+            } else {
+                severity = 'Low';
+                action = 'Normal';
+            }
+            
+            return {
+                service_name: serviceName,
+                failure_probability: probability,
+                severity: severity,
+                recommended_action: action,
+                issues_detected: issues,
+                ticket_created: probability > 60 ? {
+                    ticket_id: `INC${Date.now().toString().slice(-8)}`,
+                    status: 'created'
+                } : null
+            };
+        }
+
+        function getDemoData() {
+            return {
+                services: [
+                    {
+                        name: 'MuleSoft API Gateway',
+                        status: 'healthy',
+                        cpu: 45,
+                        memory: 62,
+                        error_rate: 0.5,
+                        response_time: 245,
+                        failure_risk: 15
+                    },
+                    {
+                        name: 'Boomi Integration Service',
+                        status: 'warning',
+                        cpu: 78,
+                        memory: 81,
+                        error_rate: 3.2,
+                        response_time: 892,
+                        failure_risk: 58
+                    },
+                    {
+                        name: 'SAP Integration Hub',
+                        status: 'healthy',
+                        cpu: 52,
+                        memory: 68,
+                        error_rate: 1.1,
+                        response_time: 412,
+                        failure_risk: 22
+                    },
+                    {
+                        name: 'Database Cluster',
+                        status: 'critical',
+                        cpu: 92,
+                        memory: 94,
+                        error_rate: 8.7,
+                        response_time: 2145,
+                        failure_risk: 89
+                    }
+                ],
+                total_services: 4,
+                healthy: 2,
+                warning: 1,
+                critical: 1
+            };
+        }
+    </script>
+</body>
+</html>
